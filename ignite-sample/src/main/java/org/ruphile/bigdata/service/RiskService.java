@@ -6,6 +6,7 @@ import org.apache.ignite.cache.QueryEntity;
 import org.apache.ignite.cache.store.jdbc.CacheJdbcPojoStoreFactory;
 import org.apache.ignite.cache.store.jdbc.JdbcType;
 import org.apache.ignite.configuration.CacheConfiguration;
+import org.apache.ignite.internal.processors.cache.store.GridCacheWriteBehindStore;
 import org.ruphile.bigdata.PostgresDataSourceFactory;
 import org.ruphile.bigdata.entity.RiskLog;
 import org.ruphile.bigdata.entity.RiskLogKey;
@@ -51,7 +52,14 @@ public class RiskService {
         cacheCfg.setQueryEntities(Collections.singletonList(queryEntity));
 
         cacheCfg.setReadThrough(true);
-        cacheCfg.setWriteThrough(true);
+        //cacheCfg.setWriteThrough(true);
+        cacheCfg.setWriteThrough(false); // 关闭通写
+        cacheCfg.setWriteBehindEnabled(true); // 启用写回（关键配置）
+
+        // 写回高级配置（可选）
+        cacheCfg.setWriteBehindFlushSize(10000); // 每 10000 条记录刷新一次
+        cacheCfg.setWriteBehindFlushFrequency(3000L); // 每 3 秒刷新一次
+        cacheCfg.setWriteBehindFlushThreadCount(6); // 使用 6 个线程执行数据库写入
 
         CacheJdbcPojoStoreFactory<RiskLogKey, RiskLog> factory = new CacheJdbcPojoStoreFactory<>();
         //factory.setDialect(new BasicJdbcDialect());
