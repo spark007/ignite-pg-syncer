@@ -1,4 +1,5 @@
-/*
+package org.ruphile.bigdata.task;
+
 import org.apache.ignite.IgniteException;
 import org.apache.ignite.compute.ComputeJob;
 import org.apache.ignite.compute.ComputeJobAdapter;
@@ -9,38 +10,38 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
 
-class CharacterTask extends ComputeTaskSplitAdapter<String, Long> {
+public class CharacterTask extends ComputeTaskSplitAdapter<String, Long> {
+    Logger logger = Logger.getLogger(CharacterTask.class.getName());
 
     @Override
     protected Collection<? extends ComputeJob> split(int i, String s) throws IgniteException {
-        System.out.println("split开始执行");
+        logger.info("split开始执行");
         Collection<ComputeJob> jobs = new LinkedList<>();
 
         for (final String word : s.split(" ")) {
             jobs.add(new ComputeJobAdapter() {
                 @Override
                 public Object execute() {
-                    System.out.println();
-                    System.out.println(">>> Printing '" + word + "' on this node from ignite job.");
+                    logger.info(">>> Printing '" + word + "' on this node from ignite job.");
 
                     // Return number of letters in the word.
                     return word.length();
                 }
             });
         }
-        System.out.println("split执行完毕");
+        logger.info("split执行完毕");
         return jobs;
     }
 
     @Override
     public @Nullable Long reduce(List<ComputeJobResult> list) throws IgniteException {
-        Long sum = 0L;
+        int sum = 0;
         for (ComputeJobResult res : list) {
-            System.out.println(">>> Got result: " + res.getData());
-            sum += res.<Long>getData();
+            logger.info(">>> Got result: " + res.<Integer>getData());
+            sum += res.<Integer>getData();
         }
-        return sum;
+        return (long) sum;
     }
 }
-*/

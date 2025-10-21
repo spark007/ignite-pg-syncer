@@ -5,10 +5,12 @@ import org.apache.ignite.IgniteCache;
 import org.apache.ignite.cache.QueryEntity;
 import org.apache.ignite.cache.store.jdbc.CacheJdbcPojoStoreFactory;
 import org.apache.ignite.cache.store.jdbc.JdbcType;
+import org.apache.ignite.compute.ComputeTask;
 import org.apache.ignite.configuration.CacheConfiguration;
 import org.ruphile.bigdata.PostgresDataSourceFactory;
 import org.ruphile.bigdata.entity.User;
 import org.ruphile.bigdata.entity.UserKey;
+import org.ruphile.bigdata.task.CharacterTask;
 import org.ruphile.bigdata.util.CacheMapper;
 import org.springframework.stereotype.Service;
 
@@ -37,8 +39,15 @@ public class UserService {
 
     @PostConstruct
     public void init() {
+        String cacheName = User.class.getSimpleName().toLowerCase();
+        if (ignite.cacheNames().contains(cacheName)) {
+            userCache = ignite.cache(cacheName);
+            compute();
+            return;
+        }
+
         CacheConfiguration<UserKey, User> cacheCfg = new CacheConfiguration<>();
-        cacheCfg.setName(User.class.getSimpleName().toUpperCase());
+        cacheCfg.setName(cacheName);
         cacheCfg.setSqlSchema("BASE");
         QueryEntity queryEntity = CacheMapper.createTableEntity(UserKey.class, User.class);
         cacheCfg.setQueryEntities(Collections.singletonList(queryEntity));
@@ -81,6 +90,10 @@ public class UserService {
             }
         }
     }*/
+
+    public void compute() {
+        ignite.compute().execute(new CharacterTask(), "public static void main(String[] args)");
+    }
 
 
 }

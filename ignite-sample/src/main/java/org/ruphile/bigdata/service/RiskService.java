@@ -38,8 +38,14 @@ public class RiskService {
 
     @PostConstruct
     public void init() {
+        String cacheName = RiskLog.class.getSimpleName().toLowerCase();
+        if (ignite.cacheNames().contains(cacheName)) {
+            riskCache = ignite.cache(cacheName);
+            return;
+        }
+
         CacheConfiguration<RiskLogKey, RiskLog> cacheCfg = new CacheConfiguration<>();
-        cacheCfg.setName(RiskLog.class.getSimpleName().toUpperCase());
+        cacheCfg.setName(cacheName);
         cacheCfg.setSqlSchema("BASE");
         QueryEntity queryEntity = CacheMapper.createTableEntity(RiskLogKey.class, RiskLog.class);
         cacheCfg.setQueryEntities(Collections.singletonList(queryEntity));
