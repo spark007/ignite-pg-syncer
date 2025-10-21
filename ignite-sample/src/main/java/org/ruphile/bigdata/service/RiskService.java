@@ -39,7 +39,7 @@ public class RiskService {
 
     @PostConstruct
     public void init() {
-        String cacheName = RiskLog.class.getSimpleName().toLowerCase();
+        String cacheName = RiskLog.class.getSimpleName().toUpperCase();
         if (ignite.cacheNames().contains(cacheName)) {
             riskCache = ignite.cache(cacheName);
             return;

@@ -13,8 +13,8 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/query-by-id")
-    public String queryUser(String id) {
+    @GetMapping("/query-by-id/{id}")
+    public String queryUser(@PathVariable String id) {
         User user = userService.getUserById(new UserKey(id));
         if (user == null) {
             return "User record not found";

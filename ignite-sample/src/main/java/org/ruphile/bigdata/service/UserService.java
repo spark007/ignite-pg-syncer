@@ -39,7 +39,7 @@ public class UserService {
 
     @PostConstruct
     public void init() {
-        String cacheName = User.class.getSimpleName().toLowerCase();
+        String cacheName = User.class.getSimpleName().toUpperCase();
         if (ignite.cacheNames().contains(cacheName)) {
             userCache = ignite.cache(cacheName);
             compute();
