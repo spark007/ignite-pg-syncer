@@ -1,6 +1,9 @@
 package org.ruphile.bigdata.util;
 
 import org.apache.ignite.cache.QueryEntity;
+import org.apache.ignite.cache.QueryIndex;
+import org.apache.ignite.cache.QueryIndexType;
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
 import org.apache.ignite.cache.store.jdbc.JdbcType;
 import org.apache.ignite.cache.store.jdbc.JdbcTypeField;
 
@@ -24,15 +27,41 @@ public class CacheMapper {
         // 2. 设置所有可查询字段 (Key 字段 + Value 字段)
         LinkedHashMap<String, String> fieldMap = new LinkedHashMap<>();
 
-        // 添加 Key 字段
+        // 3. 设置索引字段列表 (New requirement based on @QuerySqlField)
+        Set<String> indexedFields = new HashSet<>();
+
+        // 添加 Key 字段 and check for index annotation
         for (Field field : key.getDeclaredFields()) {
             fieldMap.put(field.getName(), field.getType().getName());
+            /*QuerySqlField annotation = field.getAnnotation(QuerySqlField.class);
+            if (annotation != null && annotation.index()) {
+                indexedFields.add(field.getName());
+            }*/
         }
-        // 添加 Value 字段
+
+        // 添加 Value 字段 and check for index annotation
         for (Field field : value.getDeclaredFields()) {
             fieldMap.put(field.getName(), field.getType().getName());
+            QuerySqlField annotation = field.getAnnotation(QuerySqlField.class);
+            if (annotation != null && annotation.index()) {
+                indexedFields.add(field.getName());
+            }
         }
         queryEntity.setFields(fieldMap);
+
+        // 4. 设置索引字段列表 (Corrected Syntax for Apache Ignite 2.16)
+        List<QueryIndex> queryIndexes = new ArrayList<>();
+
+        if (!indexedFields.isEmpty()) {
+            // Create ONE composite index on all fields. Use SORTED as the type.
+            // Correct Syntax: QueryIndex(Collection<String> fields, QueryIndexType type)
+            QueryIndex compositeIndex = new QueryIndex(indexedFields, QueryIndexType.SORTED);
+
+            queryIndexes.add(compositeIndex);
+        }
+
+        // Assumes QueryEntity.setIndexes() accepts a List<QueryIndex>
+        queryEntity.setIndexes(queryIndexes);
 
         return queryEntity;
     }

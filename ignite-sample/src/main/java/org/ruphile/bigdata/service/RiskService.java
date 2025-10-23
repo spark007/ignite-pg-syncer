@@ -17,19 +17,25 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.Collections;
 
+
 /*
-CREATE TABLE t_risk (
-    sno VARCHAR(32) NOT NULL,
-    uno VARCHAR(32) NOT NULL,
-    business_date VARCHAR(32),
-    business_time VARCHAR(32),
-    object_id BIGINT,
-    object_name VARCHAR(64),
-    risk_name VARCHAR(64),
-    risk_type VARCHAR(32),
-    PRIMARY KEY (sno, uno)
-);
+    添加列： 使用 ALTER TABLE ADD COLUMN（DDL SQL）是最简单和推荐的方法。
+    删除或修改列： 必须通过“创建新缓存 (新模式) -> 迁移数据 -> 销毁旧缓存”的流程进行。
+    这是分布式内存数据网格（如 Ignite）由于其高性能和分区特性，在处理结构化数据模式变更时，相较于传统关系数据库（RDBMS）的常见限制。
+
+    CREATE TABLE t_risk (
+        sno VARCHAR(32) NOT NULL,
+        uno VARCHAR(32) NOT NULL,
+        business_date VARCHAR(32),
+        business_time VARCHAR(32),
+        object_id BIGINT,
+        object_name VARCHAR(64),
+        risk_name VARCHAR(64),
+        risk_type VARCHAR(32),
+        PRIMARY KEY (sno, uno)
+    );
  */
+
 @Service
 public class RiskService {
     @Resource
